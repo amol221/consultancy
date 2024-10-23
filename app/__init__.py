@@ -19,7 +19,7 @@ def create_app():
     app = Flask(__name__)
     CORS(app)
 
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://amolnil:XjLcBiNvQCN1BVmJccCvZvXLRGF8LOHG@dpg-cscdjio8fa8c73fur3ig-a.oregon-postgres.render.com/consultancy_ngiq'
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL")
 
     #postgresql://amolnil:grpSdeJWu2d6YQ4Dfzaf2eLRw5fiiPit@dpg-csb9olu8ii6s7384led0-a/consultancy_s7xs
 
