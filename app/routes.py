@@ -24,6 +24,10 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+@main.route('/')
+def index():
+    return "Welcome to the Admission Consultancy website!"
+
 @main.route('/register', methods=['POST'])
 def register():
     data = request.json
