@@ -24,15 +24,15 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-@main.route('/')
-def index():
-    return "Welcome to the Admission Consultancy website!"
-
 @main.route('/register', methods=['POST'])
 def register():
     data = request.json
     hashed_password = generate_password_hash(data['password'], method='pbkdf2:sha256')
 
+    # Check if the email is one of the specific ones to assign 'admin' role
+    role = 'admin' if data['email'] in ['admissionfirst7@gmail.com', 'patilamol1045@gmail.com'] else 'user'
+
+    # Create a new user object with the assigned role
     user = User(
         email=data['email'],
         fname=data['fname'],
@@ -43,10 +43,15 @@ def register():
         education=data.get('education'),
         city=data['city'],
         state=data['state'],
+        role=role  # Assign the role here
     )
+    
+    # Add the user to the database
     db.session.add(user)
     db.session.commit()
+
     return jsonify({'message': 'User registered successfully'}), 201
+
 
 
 
