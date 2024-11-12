@@ -166,7 +166,7 @@ def admin_dashboard():
 # Twilio configuration
 TWILIO_PHONE_NUMBER = 'whatsapp:+14155238886'  # Your Twilio WhatsApp-enabled number
 TWILIO_ACCOUNT_SID = 'AC2dc18628d0ad8e62b267c84195aa6719'
-TWILIO_AUTH_TOKEN = '[AuthToken]'
+TWILIO_AUTH_TOKEN = 'a65f61c4a4cba4f17b790700dbd8de23'
 
 # Create a Twilio client
 twilio_client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
