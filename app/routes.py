@@ -508,11 +508,10 @@ def get_resources(user_id, subscription):
 
 
 
-
-from flask import request, jsonify
 import smtplib
 import random
 import string
+from flask import request, jsonify
 
 @main.route('/forgot-password', methods=['POST'])
 def forgot_password():
@@ -539,10 +538,9 @@ def send_reset_email(email, token):
     smtp_server = 'smtp.zoho.in'
     smtp_port = 465
     smtp_user = 'surajvdoke@zohomail.in'
-    smtp_password = "Risk#Dreams'97"
+    smtp_password = "Risk#Dreams'97"  # Fixed syntax for password
 
-    with smtplib.SMTP(smtp_server, smtp_port) as server:
-        server.starttls()
+    with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
         server.login(smtp_user, smtp_password)
         
         subject = "Password Reset Request"
@@ -550,7 +548,6 @@ def send_reset_email(email, token):
         message = f"Subject: {subject}\n\n{body}"
         
         server.sendmail(smtp_user, email, message)
-
 
 @main.route('/reset-password/<token>', methods=['POST'])
 def reset_password(token):
@@ -569,5 +566,3 @@ def reset_password(token):
         return jsonify({'success': True, 'message': 'Password reset successfully.'}), 200
     
     return jsonify({'success': False, 'error': 'Invalid or expired token.'}), 400
-
-   
