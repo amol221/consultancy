@@ -6,6 +6,10 @@ from werkzeug.utils import secure_filename
 from werkzeug.security import check_password_hash
 from werkzeug.security import generate_password_hash
 
+
+from twilio.rest import Client
+
+
 from flask import send_file
 
 main = Blueprint('main', __name__)
@@ -157,10 +161,6 @@ def admin_dashboard():
 
 
 
-from flask import jsonify, request
-from twilio.rest import Client
-from app import db
-from models import User, Notification, Subscription
 
 
 # Twilio configuration
