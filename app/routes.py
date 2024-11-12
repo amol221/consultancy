@@ -536,8 +536,8 @@ def forgot_password():
 
 def send_reset_email(email, token):
     # Configure your email settings
-    smtp_server = 'smtp.example.com'
-    smtp_port = 587
+    smtp_server = 'smtp.zoho.in'
+    smtp_port = 465
     smtp_user = 'surajvdoke@zohomail.in'
     smtp_password = "Risk#Dreams'97"
 
