@@ -543,9 +543,10 @@ def send_reset_email(email, token):
     smtp_user = 'riskydreams15@gmail.com'  # Your Gmail address
     smtp_password = 'ulng nirm nvme xzab'  # Your Gmail password or app-specific password if 2FA is enabled
 
-
     try:
-        with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
+        # Use SMTP with starttls (TLS encryption)
+        with smtplib.SMTP(smtp_server, smtp_port) as server:
+            server.starttls()  # Upgrade connection to secure TLS connection
             server.login(smtp_user, smtp_password)
             
             subject = "Password Reset Request"
@@ -555,6 +556,7 @@ def send_reset_email(email, token):
             server.sendmail(smtp_user, email, message)
     except smtplib.SMTPException as e:
         raise Exception(f"SMTP error: {e}")
+
 
 @main.route('/reset-password/<token>', methods=['POST'])
 def reset_password(token):
