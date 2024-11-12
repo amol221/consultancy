@@ -206,8 +206,14 @@ def send_notification():
         db.session.add(new_notification)
 
         # Send WhatsApp message to the user
+        # Default country code for India
+        DEFAULT_COUNTRY_CODE = '+91'
         if user.mobile_number:  # Make sure user has a valid WhatsApp number
             try:
+                if not user.mobile_number.startswith('+'):
+                    # If not, prepend the default country code (e.g., +91 for India)
+                    user.mobile_number = DEFAULT_COUNTRY_CODE + user.mobile_number.lstrip('0')  # Remove leading zero if exists
+                
                 # Send the WhatsApp message using Twilio
                 twilio_client.messages.create(
                     body=message,
