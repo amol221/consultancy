@@ -156,6 +156,24 @@ def admin_dashboard():
 
 
 
+
+from flask import jsonify, request
+from twilio.rest import Client
+from app import db
+from models import User, Notification, Subscription
+
+
+# Twilio configuration
+TWILIO_PHONE_NUMBER = 'whatsapp:+14155238886'  # Your Twilio WhatsApp-enabled number
+TWILIO_ACCOUNT_SID = 'AC2dc18628d0ad8e62b267c84195aa6719'
+TWILIO_AUTH_TOKEN = '[AuthToken]'
+
+# Create a Twilio client
+twilio_client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+
+
+
+
 @main.route('/admin/send_notification', methods=['POST'])
 def send_notification():
     # Extract form data
@@ -177,7 +195,7 @@ def send_notification():
     if not users:
         return jsonify({'message': 'No users found for the selected subscription!'}), 404
 
-    # Create a notification for each user
+    # Create a notification for each user and send a WhatsApp message
     for user in users:
         new_notification = Notification(
             user_id=user.id,
@@ -186,6 +204,19 @@ def send_notification():
             message=message
         )
         db.session.add(new_notification)
+
+        # Send WhatsApp message to the user
+        if user.mobile_number:  # Make sure user has a valid WhatsApp number
+            try:
+                # Send the WhatsApp message using Twilio
+                twilio_client.messages.create(
+                    body=message,
+                    from_=TWILIO_PHONE_NUMBER,
+                    to=f'whatsapp:{user.mobile_number}'  # User's WhatsApp number
+                )
+            except Exception as e:
+                db.session.rollback()  # Rollback if message fails
+                return jsonify({'message': f'Error sending WhatsApp message: {str(e)}'}), 500
 
     db.session.commit()
 
