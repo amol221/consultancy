@@ -538,8 +538,8 @@ def send_reset_email(email, token):
     # Configure your email settings
     smtp_server = 'smtp.example.com'
     smtp_port = 587
-    smtp_user = 'your-email@example.com'
-    smtp_password = 'your-email-password'
+    smtp_user = 'surajvdoke@zohomail.in'
+    smtp_password = "Risk#Dreams'97"
 
     with smtplib.SMTP(smtp_server, smtp_port) as server:
         server.starttls()
