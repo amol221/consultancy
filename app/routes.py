@@ -539,9 +539,10 @@ def forgot_password():
 def send_reset_email(email, token):
     # Configure your email settings for Gmail
     smtp_server = 'smtp.gmail.com'
-    smtp_port = 465
-    smtp_user = 'riskydreams15@gmail.com'
-    smtp_password = 'Suraj#Dreams15'
+    smtp_port = 587  # Use 587 for TLS (STARTTLS)
+    smtp_user = 'riskydreams15@gmail.com'  # Your Gmail address
+    smtp_password = 'ulng nirm nvme xzab'  # Your Gmail password or app-specific password if 2FA is enabled
+
 
     try:
         with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
