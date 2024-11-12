@@ -507,11 +507,11 @@ def get_resources(user_id, subscription):
     }), 200
 
 
-
 import smtplib
 import random
 import string
-from flask import request, jsonify
+from flask import request, jsonify, current_app
+from werkzeug.security import generate_password_hash
 
 @main.route('/forgot-password', methods=['POST'])
 def forgot_password():
@@ -527,27 +527,33 @@ def forgot_password():
         db.session.commit()
         
         # Send email (set up your email server)
-        send_reset_email(user.email, token)
-        
-        return jsonify({'success': True, 'message': 'Password reset email sent.'}), 200
+        try:
+            send_reset_email(user.email, token)
+            return jsonify({'success': True, 'message': 'Password reset email sent.'}), 200
+        except Exception as e:
+            current_app.logger.error(f"Failed to send email: {e}")
+            return jsonify({'success': False, 'error': 'Failed to send email.'}), 500
     
     return jsonify({'success': False, 'error': 'Email not found.'}), 404
 
 def send_reset_email(email, token):
-    # Configure your email settings
-    smtp_server = 'smtp.zoho.in'
+    # Configure your email settings for Gmail
+    smtp_server = 'smtp.gmail.com'
     smtp_port = 465
-    smtp_user = 'surajvdoke@zohomail.in'
-    smtp_password = "Risk#Dreams'97"  # Fixed syntax for password
+    smtp_user = 'riskydreams15@gmail.com'
+    smtp_password = 'Suraj#Dreams15'
 
-    with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
-        server.login(smtp_user, smtp_password)
-        
-        subject = "Password Reset Request"
-        body = f"To reset your password, click the link: http://yourdomain.com/reset-password/{token}"
-        message = f"Subject: {subject}\n\n{body}"
-        
-        server.sendmail(smtp_user, email, message)
+    try:
+        with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
+            server.login(smtp_user, smtp_password)
+            
+            subject = "Password Reset Request"
+            body = f"To reset your password, click the link: http://yourdomain.com/reset-password/{token}"
+            message = f"Subject: {subject}\n\n{body}"
+            
+            server.sendmail(smtp_user, email, message)
+    except smtplib.SMTPException as e:
+        raise Exception(f"SMTP error: {e}")
 
 @main.route('/reset-password/<token>', methods=['POST'])
 def reset_password(token):
