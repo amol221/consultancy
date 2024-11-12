@@ -550,7 +550,7 @@ def send_reset_email(email, token):
             server.login(smtp_user, smtp_password)
             
             subject = "Password Reset Request"
-            body = f"To reset your password, click the link: https://www.admissionfirst.in//reset-password/{token}"
+            body = f"To reset your password, click the link: https://www.admissionfirst.in/reset-password/{token}"
             message = f"Subject: {subject}\n\n{body}"
             
             server.sendmail(smtp_user, email, message)
