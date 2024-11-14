@@ -463,7 +463,7 @@ def user_detail(user_id):
             'state': user.state,
             'role': user.role,
             'subscription': user.subscription.title if user.subscription else 'None',
-            'subscription_status': 'currently You don\'t have any subscription' if user.role != 'premium' and user.transaction_id == None else 'Active',
+            'subscription_status': 'currently You don\'t have any subscription' if user.role != 'premium' else 'Active',
         }
         return jsonify(user_details), 200
 
