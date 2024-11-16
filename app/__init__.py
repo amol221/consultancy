@@ -19,7 +19,8 @@ def create_app():
     app = Flask(__name__)
     CORS(app)
 
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL")
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://admissionfirst:admission9405@localhost:5432/admissionfirstdb'
+
 
     #postgresql://amolnil:grpSdeJWu2d6YQ4Dfzaf2eLRw5fiiPit@dpg-csb9olu8ii6s7384led0-a/consultancy_s7xs
 
