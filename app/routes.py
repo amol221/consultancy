@@ -237,19 +237,6 @@ def admin_dashboard():
 
 
 
-
-
-# Twilio configuration
-TWILIO_PHONE_NUMBER = 'whatsapp:+14155238886'  # Your Twilio WhatsApp-enabled number
-TWILIO_ACCOUNT_SID = 'AC2dc18628d0ad8e62b267c84195aa6719'
-TWILIO_AUTH_TOKEN = 'a65f61c4a4cba4f17b790700dbd8de23'
-
-# Create a Twilio client
-twilio_client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
-
-
-
-
 @main.route('/admin/send_notification', methods=['POST'])
 def send_notification():
     # Extract form data
@@ -257,6 +244,7 @@ def send_notification():
     message = data.get('message')
     subscription_name = data.get('subscription')  # Get subscription name instead of ID
 
+    # Validate the incoming data
     if not message or not subscription_name:
         return jsonify({'message': 'Message and subscription name must be provided!'}), 400
 
@@ -268,10 +256,11 @@ def send_notification():
     # Get all users subscribed to the selected subscription
     users = User.query.filter_by(subscription_id=subscription.id).all()
 
+    # If no users are found, return an appropriate message
     if not users:
         return jsonify({'message': 'No users found for the selected subscription!'}), 404
 
-    # Create a notification for each user and send a WhatsApp message
+    # Create a notification for each user
     for user in users:
         new_notification = Notification(
             user_id=user.id,
@@ -281,29 +270,15 @@ def send_notification():
         )
         db.session.add(new_notification)
 
-        # Send WhatsApp message to the user
-        # Default country code for India
-        DEFAULT_COUNTRY_CODE = '+91'
-        if user.mobile_number:  # Make sure user has a valid WhatsApp number
-            try:
-                if not user.mobile_number.startswith('+'):
-                    # If not, prepend the default country code (e.g., +91 for India)
-                    user.mobile_number = DEFAULT_COUNTRY_CODE + user.mobile_number.lstrip('0')  # Remove leading zero if exists
-                
-                # Send the WhatsApp message using Twilio
-                twilio_client.messages.create(
-                    body=message,
-                    from_=TWILIO_PHONE_NUMBER,
-                    to=f'whatsapp:{user.mobile_number}'  # User's WhatsApp number
-                )
-            except Exception as e:
-                db.session.rollback()  # Rollback if message fails
-                return jsonify({'message': f'Error sending WhatsApp message: {str(e)}'}), 500
+    # Commit all notifications to the database in one go
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()  # Rollback if there is an error during commit
+        return jsonify({'message': f'Error saving notifications: {str(e)}'}), 500
 
-    db.session.commit()
-
+    # Return success message
     return jsonify({'message': f'Notifications sent to users subscribed to {subscription.title}'}), 200
-
 
 @main.route('/user/notifications/<user_id>', methods=['GET'])
 def get_user_notifications(user_id):
