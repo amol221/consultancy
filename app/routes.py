@@ -5,6 +5,7 @@ import os
 from werkzeug.utils import secure_filename
 from werkzeug.security import check_password_hash
 from werkzeug.security import generate_password_hash
+from sqlalchemy.orm import joinedload
 
 
 from twilio.rest import Client
@@ -91,6 +92,80 @@ def logout():
     return jsonify({'message': 'Logged out successfully'}), 200
 
 
+
+from flask import jsonify, request
+from datetime import datetime
+from .models import User, Subscription
+
+@main.route('/users', methods=['GET'])
+def get_users():
+    subscription_status = request.args.get('status')  # 'subscribed' or 'non-subscribed'
+    
+    if subscription_status == 'subscribed':
+        # Fetch all users who are subscribed to any subscription
+        users = User.query.join(Subscription).filter(User.subscription_id.isnot(None)).all()
+    else:
+        # Fetch all users who are NOT subscribed to any subscription
+        users = User.query.filter(User.subscription_id.is_(None)).all()
+
+    user_data = []
+    for user in users:
+        subscription_info = None
+        days_left = None
+        
+        # If the user has a subscription
+        if user.subscription:
+            subscription_info = user.subscription.heading
+            subscription_start_date = user.subscription_timestamp
+            subscription_validity = user.subscription.validity  # Assuming the validity is in years
+            
+            # Calculate the expiration date by adding the validity (1 year)
+            expiration_date = subscription_start_date.replace(year=subscription_start_date.year + 1)
+            
+            # Calculate how many days are left
+            days_left = (expiration_date - datetime.utcnow()).days
+            
+            # If days_left is negative, it means the subscription has expired
+            if days_left < 0:
+                days_left = 0
+        
+        user_info = {
+            'name': f"{user.fname} {user.lastname}",
+            'email': user.email,
+            'mobile_number': user.mobile_number,
+            'subscription_name': subscription_info,
+            'subscription_start_date': subscription_start_date if subscription_info else None,
+            'days_left': days_left
+        }
+        user_data.append(user_info)
+
+    return jsonify({'users': user_data}), 200
+
+
+
+@main.route('/revoke_subscription', methods=['POST'])
+def revoke_subscription():
+    user_id = request.json.get('user_id')  # ID of the user whose subscription is to be revoked
+    
+    # Find the user by ID
+    user = User.query.get(user_id)
+    
+    if user:
+        # If the user has a subscription, remove it and change role
+        user.subscription_id = None  # Remove subscription reference
+        user.role = 'user'  # Set the role back to 'user'
+        
+        # Commit the changes to the database
+        db.session.commit()
+
+        return jsonify({'message': f"Subscription revoked for {user.fname} {user.lastname}"}), 200
+    else:
+        return jsonify({'message': 'User not found'}), 404
+
+
+
+
+
 @main.route('/update-transaction', methods=['POST'])
 def update_transaction():
     data = request.json
@@ -119,6 +194,7 @@ def update_transaction():
     # send_whatsapp_notification(user.email, data['transaction_id'])
 
     return jsonify({'message': 'Transaction ID updated'}), 200
+
 
 
 
