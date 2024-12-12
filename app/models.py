@@ -50,6 +50,12 @@ class Video(db.Model):
     file_path = db.Column(db.String(255), nullable=False)
     subscription_id = db.Column(db.Integer, db.ForeignKey('subscription.id'))
 
+class CourseLink(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    subscription_id = db.Column(db.Integer, db.ForeignKey('subscription.id'), nullable=False)
+    name = db.Column(db.String(255), nullable=False)  # Display name for the link
+    url = db.Column(db.String(255), nullable=False)   # The actual URL of the link
+    subscription = db.relationship('Subscription', back_populates='course_links')
 
 
 class Notification(db.Model):
