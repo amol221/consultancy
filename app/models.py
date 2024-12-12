@@ -38,6 +38,7 @@ class Subscription(db.Model):
     pdfs = db.relationship('PDF', backref='subscription', lazy=True, cascade="all, delete-orphan")
     videos = db.relationship('Video', backref='subscription', lazy=True, cascade="all, delete-orphan")
     notifications = db.relationship('Notification', backref='subscription', lazy=True, cascade="all, delete-orphan")
+    course_links = db.relationship('CourseLink', back_populates='subscription', cascade="all, delete-orphan")
 
 class PDF(db.Model):
     id = db.Column(db.Integer, primary_key=True)
