@@ -235,6 +235,52 @@ def admin_dashboard():
         return jsonify({"error": "Internal server error"}), 500
 
 
+@main.route('/admin/course_links', methods=['POST'])
+def add_course_link():
+    data = request.json
+    subscription_id = data.get('subscription_id')
+    name = data.get('name')
+    url = data.get('url')
+
+    if not subscription_id or not name or not url:
+        return jsonify({'message': 'All fields (subscription_id, name, url) are required!'}), 400
+
+    subscription = Subscription.query.get(subscription_id)
+    if not subscription:
+        return jsonify({'message': 'Subscription not found!'}), 404
+
+    new_link = CourseLink(subscription_id=subscription_id, name=name, url=url)
+    db.session.add(new_link)
+    db.session.commit()
+
+    return jsonify({'message': 'Course link added successfully!'}), 201
+
+
+@main.route('/admin/course_links/<int:link_id>', methods=['DELETE'])
+def delete_course_link(link_id):
+    course_link = CourseLink.query.get(link_id)
+
+    if not course_link:
+        return jsonify({'message': 'Course link not found!'}), 404
+
+    db.session.delete(course_link)
+    db.session.commit()
+
+    return jsonify({'message': 'Course link deleted successfully!'}), 200
+
+
+@main.route('/user/course_links', methods=['GET'])
+def get_course_links():
+    user_id = request.args.get('user_id')
+    user = User.query.options(joinedload(User.subscription)).filter_by(id=user_id).first()
+
+    if not user or not user.subscription:
+        return jsonify({'message': 'User is not subscribed to any subscription!'}), 400
+
+    links = CourseLink.query.filter_by(subscription_id=user.subscription.id).all()
+    links_data = [{'id': link.id, 'name': link.name, 'url': link.url} for link in links]
+
+    return jsonify({'subscription': user.subscription.heading, 'links': links_data}), 200
 
 
 @main.route('/admin/send_notification', methods=['POST'])
