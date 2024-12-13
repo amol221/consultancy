@@ -283,6 +283,22 @@ def get_course_links():
     return jsonify({'subscription': user.subscription.heading, 'links': links_data}), 200
 
 
+@main.route('/admin/all_course_links', methods=['GET'])
+def get_all_course_links():
+    links = CourseLink.query.options(joinedload(CourseLink.subscription)).all()
+    links_data = [
+        {
+            'id': link.id,
+            'name': link.name,
+            'url': link.url,
+            'subscription_id': link.subscription_id,
+            'subscription_name': link.subscription.heading if link.subscription else None
+        }
+        for link in links
+    ]
+    return jsonify({'links': links_data}), 200
+
+
 @main.route('/admin/send_notification', methods=['POST'])
 def send_notification():
     # Extract form data
