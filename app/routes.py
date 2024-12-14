@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from .models import Notification, db, User, PDF, Video, Subscription
+from .models import Notification, db, User, PDF, Video, Subscription,CourseLink
 from .notifications import send_whatsapp_notification
 import os
 from werkzeug.utils import secure_filename
